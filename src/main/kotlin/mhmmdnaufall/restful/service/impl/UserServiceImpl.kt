@@ -5,6 +5,7 @@ import jakarta.validation.ConstraintViolationException
 import jakarta.validation.Validator
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.RegisterUserRequest
+import mhmmdnaufall.restful.model.UserResponse
 import mhmmdnaufall.restful.repository.UserRepository
 import mhmmdnaufall.restful.security.BCrypt
 import mhmmdnaufall.restful.service.UserService
@@ -38,6 +39,13 @@ class UserServiceImpl(
 
         userRepository.save(user)
 
+    }
+
+    override fun get(user: User): UserResponse {
+        return UserResponse(
+                username = user.username,
+                name = user.name
+        )
     }
 
 

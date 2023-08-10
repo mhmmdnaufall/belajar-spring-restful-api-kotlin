@@ -4,8 +4,10 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.RegisterUserRequest
+import mhmmdnaufall.restful.model.UserResponse
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.repository.UserRepository
+import mhmmdnaufall.restful.security.BCrypt
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -19,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvcBuilder.*;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import java.time.Instant
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -113,6 +116,99 @@ class UserControllerTest() {
                 )
                 .andExpectAll(
                         status().isBadRequest
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun getUserUnauthorized() {
+        mockMvc
+                .perform(
+                        get("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "notfound")
+                )
+                .andExpectAll(
+                        status().isUnauthorized
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun getUserUnauthorizedTokenNotSend() {
+        mockMvc
+                .perform(
+                        get("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpectAll(
+                        status().isUnauthorized
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun getUserSuccess() {
+
+        val user = User(
+                username = "test",
+                password = BCrypt.hashpw("rahasia", BCrypt.gensalt()),
+                name = "Test",
+                token = "test",
+                tokenExpiredAt = Instant.now().plusSeconds(1000000L).toEpochMilli()
+        )
+        userRepository.save(user)
+
+        mockMvc
+                .perform(
+                        get("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<UserResponse>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals("test", response.data?.username)
+                    assertEquals("Test", response.data?.name)
+                }
+    }
+
+    @Test
+    fun getUserTokenExpired() {
+
+        val user = User(
+                username = "test",
+                password = BCrypt.hashpw("rahasia", BCrypt.gensalt()),
+                name = "Test",
+                token = "test",
+                tokenExpiredAt = Instant.now().minusSeconds(1000000L).toEpochMilli()
+        )
+        userRepository.save(user)
+
+        mockMvc
+                .perform(
+                        get("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isUnauthorized
                 )
                 .andDo { result ->
                     val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
