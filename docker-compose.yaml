@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  spring-restful-api-kotlin:
+    container_name: spring-restful-api-kotlin
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: belajar_spring_restful_api_kotlin
+      MYSQL_USER: kotlin
+      MYSQL_PASSWORD: kotlin
