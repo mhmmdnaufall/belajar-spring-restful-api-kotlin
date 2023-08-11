@@ -7,8 +7,10 @@ import mhmmdnaufall.restful.model.CreateContactRequest
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.service.ContactService
 import mhmmdnaufall.restful.service.ValidationService
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
 @Service
@@ -32,6 +34,17 @@ class ContactServiceImpl(
 
         contactRepository.save(contact)
 
+        return toContactResponse(contact)
+    }
+
+    @Transactional(readOnly = true)
+    override fun get(user: User, id: String): ContactResponse {
+        val contact = contactRepository.findFirstByUserAndId(user, id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+
+        return toContactResponse(contact)
+    }
+
+    private fun toContactResponse(contact: Contact): ContactResponse {
         return ContactResponse(
                 id = contact.id,
                 firstName = contact.firstName,

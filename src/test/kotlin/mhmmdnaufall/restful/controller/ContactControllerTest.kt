@@ -2,6 +2,7 @@ package mhmmdnaufall.restful.controller
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.ContactResponse
 import mhmmdnaufall.restful.model.CreateContactRequest
@@ -23,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvcBuilder.*
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*
+import java.util.UUID
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -113,4 +115,56 @@ class ContactControllerTest {
                 }
     }
 
+    @Test
+    fun getContactNotFound() {
+        mockMvc
+                .perform(
+                        get("/api/contacts/621736128")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun getContactSuccess() {
+        val user = userRepository.findById("test").orElseThrow()
+
+        val contact = Contact(
+                id = UUID.randomUUID().toString(),
+                user = user,
+                firstName = "Muhammad",
+                lastName = "Naufal",
+                email = "naufal@gmail.com",
+                phone = "71289738921"
+        )
+        contactRepository.save(contact)
+
+        mockMvc
+                .perform(
+                        get("/api/contacts/${contact.id}")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<ContactResponse>>(){})
+                    assertNull(response.errors)
+
+                    assertEquals(contact.id, response.data?.id)
+                    assertEquals(contact.firstName, response.data?.firstName)
+                    assertEquals(contact.lastName, response.data?.lastName)
+                    assertEquals(contact.email, response.data?.email)
+                    assertEquals(contact.phone, response.data?.phone)
+
+                }
+    }
 }

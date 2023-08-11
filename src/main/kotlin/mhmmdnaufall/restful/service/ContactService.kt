@@ -8,4 +8,6 @@ interface ContactService {
 
     fun create(user: User, request: CreateContactRequest): ContactResponse
 
+    fun get(user: User, id: String): ContactResponse
+
 }

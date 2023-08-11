@@ -34,16 +34,12 @@ class UserArgumentResolver(
     ): Any? {
 
         val servletRequest = webRequest.nativeRequest as HttpServletRequest
-        val token = servletRequest.getHeader("X-API-TOKEN")
+        val token = servletRequest.getHeader("X-API-TOKEN") ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")
         log.info("TOKEN {}", token)
-
-        if (token == null) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")
-        }
 
         val user = userRepository.findFirstByToken(token) ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")
 
-        log.info("USER {}", user)
+        log.info("USER {}", user.name)
         if (user.tokenExpiredAt!! < Instant.now().toEpochMilli()) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Unauthorized")
         }
