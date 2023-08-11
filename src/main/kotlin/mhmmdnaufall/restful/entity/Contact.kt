@@ -19,17 +19,17 @@ data class Contact(
         var firstName: String,
 
         @field:Column(name = "last_name")
-        var lastName: String,
+        var lastName: String?,
 
-        var phone: String,
+        var phone: String?,
 
-        var email: String,
+        var email: String?,
 
         @field:ManyToOne
         @field:JoinColumn(name = "username", referencedColumnName = "username")
         var user: User,
 
         @field:OneToMany(mappedBy = "contact")
-        var addresses: List<Address>
+        var addresses: List<Address>? = null
 
 )

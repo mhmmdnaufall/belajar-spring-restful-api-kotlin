@@ -9,7 +9,6 @@ import mhmmdnaufall.restful.model.UserResponse
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.repository.UserRepository
 import mhmmdnaufall.restful.security.BCrypt
-import org.hibernate.sql.Update
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
