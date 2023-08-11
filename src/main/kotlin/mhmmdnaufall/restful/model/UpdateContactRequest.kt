@@ -1,11 +1,16 @@
 package mhmmdnaufall.restful.model
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.validation.constraints.Email
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 
-data class CreateContactRequest(
+data class UpdateContactRequest(
+
+        @field:JsonIgnore
+        @field:NotBlank
+        var id: String? = null,
 
         @field:NotBlank
         @field:Size(max = 100)

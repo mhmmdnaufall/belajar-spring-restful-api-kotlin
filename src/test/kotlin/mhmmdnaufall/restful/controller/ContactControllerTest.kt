@@ -6,6 +6,7 @@ import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.ContactResponse
 import mhmmdnaufall.restful.model.CreateContactRequest
+import mhmmdnaufall.restful.model.UpdateContactRequest
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.repository.UserRepository
@@ -60,8 +61,9 @@ class ContactControllerTest {
     @Test
     fun createContactBadRequest() {
         val request = CreateContactRequest(
-                firstName = "",
-                email = "salah"
+                firstName = "", // salah format
+                email = "salah-format", // salah format
+                phone = "salah-format" // salah format
         )
 
         mockMvc
@@ -88,7 +90,7 @@ class ContactControllerTest {
                 firstName = "Muhammad",
                 lastName = "Naufal",
                 email = "naufal@gmail.com",
-                phone = "088888888888"
+                phone = "+6212345678901"
         )
 
         mockMvc
@@ -109,7 +111,7 @@ class ContactControllerTest {
                     assertEquals("Muhammad", response.data?.firstName)
                     assertEquals("Naufal", response.data?.lastName)
                     assertEquals("naufal@gmail.com", response.data?.email)
-                    assertEquals("088888888888", response.data?.phone)
+                    assertEquals("+6212345678901", response.data?.phone)
 
                     assertTrue(contactRepository.existsById(response.data?.id!!))
                 }
@@ -166,5 +168,79 @@ class ContactControllerTest {
                     assertEquals(contact.phone, response.data?.phone)
 
                 }
+    }
+
+    @Test
+    fun updateContactBadRequest() {
+        val request = UpdateContactRequest(
+                firstName = "",
+                email = "salah-format",
+                phone = "salah-format"
+        )
+
+        mockMvc
+                .perform(
+                        put("/api/contacts/1234")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isBadRequest
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun updateContactSuccess() {
+
+        val user = userRepository.findById("test").orElseThrow()
+
+        val contact = Contact(
+                id = UUID.randomUUID().toString(),
+                user = user,
+                firstName = "Muhammad",
+                lastName = "Naufal",
+                email = "naufal@gmail.com",
+                phone = "+6212345678901"
+        )
+        contactRepository.save(contact)
+
+        val request = CreateContactRequest(
+                firstName = "Tom",
+                lastName = "Delonge",
+                email = "tom@gmail.com",
+                phone = "+6212345678901"
+        )
+
+        mockMvc
+                .perform(
+                        put("/api/contacts/${contact.id}")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<ContactResponse>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals(request.firstName, response.data?.firstName)
+                    assertEquals(request.lastName, response.data?.lastName)
+                    assertEquals(request.email, response.data?.email)
+                    assertEquals(request.phone, response.data?.phone)
+
+                    assertTrue(contactRepository.existsById(response.data?.id!!))
+
+                }
+
     }
 }

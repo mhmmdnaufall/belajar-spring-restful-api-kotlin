@@ -4,6 +4,7 @@ import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.ContactResponse
 import mhmmdnaufall.restful.model.CreateContactRequest
+import mhmmdnaufall.restful.model.UpdateContactRequest
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.service.ContactService
 import mhmmdnaufall.restful.service.ValidationService
@@ -40,6 +41,24 @@ class ContactServiceImpl(
     @Transactional(readOnly = true)
     override fun get(user: User, id: String): ContactResponse {
         val contact = contactRepository.findFirstByUserAndId(user, id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+
+        return toContactResponse(contact)
+    }
+
+    @Transactional
+    override fun update(user: User, request: UpdateContactRequest): ContactResponse {
+        validationService.validate(request)
+
+        val contact = contactRepository.findFirstByUserAndId(user, request.id!!) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+
+        contact.apply {
+            firstName = request.firstName
+            lastName = request.lastName
+            email = request.email
+            phone = request.phone
+        }
+
+        contactRepository.save(contact)
 
         return toContactResponse(contact)
     }
