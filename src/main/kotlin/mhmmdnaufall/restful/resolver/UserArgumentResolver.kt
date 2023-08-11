@@ -17,9 +17,10 @@ import java.time.Instant
 
 @Component
 class UserArgumentResolver(
-        private val userRepository: UserRepository,
-        private val log: Logger = LoggerFactory.getLogger(UserArgumentResolver::class.java)
+        private val userRepository: UserRepository
 ) : HandlerMethodArgumentResolver {
+
+    private val log: Logger = LoggerFactory.getLogger(UserArgumentResolver::class.java)
 
     override fun supportsParameter(parameter: MethodParameter): Boolean {
         return User::class.java == parameter.parameterType

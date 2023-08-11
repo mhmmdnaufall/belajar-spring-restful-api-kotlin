@@ -4,10 +4,12 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.RegisterUserRequest
+import mhmmdnaufall.restful.model.UpdateUserRequest
 import mhmmdnaufall.restful.model.UserResponse
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.repository.UserRepository
 import mhmmdnaufall.restful.security.BCrypt
+import org.hibernate.sql.Update
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -216,4 +218,65 @@ class UserControllerTest() {
                     assertNotNull(response.errors)
                 }
     }
+
+    @Test
+    fun updateUserUnauthorized() {
+        val request = UpdateUserRequest()
+
+        mockMvc
+                .perform(
+                        patch("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                )
+                .andExpectAll(
+                        status().isUnauthorized
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun updateUserSuccess() {
+        val user = User(
+                username = "test",
+                password = BCrypt.hashpw("rahasia", BCrypt.gensalt()),
+                name = "Test",
+                token = "test",
+                tokenExpiredAt = Instant.now().plusSeconds(100000L).toEpochMilli()
+        )
+        userRepository.save(user)
+
+        val request = UpdateUserRequest(
+                name = "Naufal",
+                password = "naufalgantenkbgt"
+        )
+
+        mockMvc
+                .perform(
+                        patch("/api/users/current")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<UserResponse>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals("Naufal", response.data?.name)
+                    assertEquals("test", response.data?.username)
+
+                    val userDb = userRepository.findById("test").orElse(null)
+                    assertNotNull(userDb)
+                    assertTrue(BCrypt.checkpw("naufalgantenkbgt", userDb.password))
+                }
+    }
+
 }
