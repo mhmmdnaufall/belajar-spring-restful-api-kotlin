@@ -1,5 +1,6 @@
 package mhmmdnaufall.restful.service.impl
 
+import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.LoginUserRequest
 import mhmmdnaufall.restful.model.TokenResponse
 import mhmmdnaufall.restful.repository.UserRepository
@@ -43,6 +44,16 @@ class AuthServiceImpl(
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Username or password wrong")
         }
 
+    }
+
+    @Transactional
+    override fun logout(user: User) {
+        user.apply {
+            token = null
+            tokenExpiredAt = null
+        }
+
+        userRepository.save(user)
     }
 
     private fun next30Days(): Long = Instant.now().plusSeconds(60 * 60 * 24 * 30).toEpochMilli()

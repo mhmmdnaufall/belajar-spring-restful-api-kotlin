@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvcBuilder.*;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import java.time.Instant
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -131,6 +132,58 @@ class AuthControllerTest {
                     assertEquals(userDb.tokenExpiredAt, response.data?.expiredAt)
                 }
 
+
+    }
+
+    @Test
+    fun logoutFailed() {
+        mockMvc
+                .perform(
+                        delete("/api/auth/logout")
+                                .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpectAll(
+                        status().isUnauthorized
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun logoutSuccess() {
+
+        val user = User(
+                username = "test",
+                name = "Test",
+                password = BCrypt.hashpw("test", BCrypt.gensalt()),
+                token = "test",
+                tokenExpiredAt = Instant.now().plusSeconds(1000000L).toEpochMilli()
+        )
+        userRepository.save(user)
+
+        mockMvc
+                .perform(
+                        delete("/api/auth/logout")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals("OK", response.data)
+
+                    val userDb = userRepository.findById("test").orElse(null)
+                    assertNotNull(userDb)
+                    assertNull(userDb.tokenExpiredAt)
+                    assertNull(userDb.token)
+
+                }
 
     }
 }
