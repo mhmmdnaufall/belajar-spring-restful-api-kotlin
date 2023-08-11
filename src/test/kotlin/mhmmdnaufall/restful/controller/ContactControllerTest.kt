@@ -294,4 +294,143 @@ class ContactControllerTest {
                     assertEquals("OK", response.data)
                 }
     }
+
+    @Test
+    fun searchNotFound() {
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(0, response.data?.size)
+                    assertEquals(0, response.paging?.totalPage)
+                    assertEquals(0, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+    }
+
+    @Test
+    fun searchSuccess() {
+
+        val user = userRepository.findById("test").orElseThrow()
+
+        for (i in 1..100) {
+            val contact = Contact(
+                    id = UUID.randomUUID().toString(),
+                    user = user,
+                    firstName = "Muhammad",
+                    lastName = "Naufal $i",
+                    email = "naufal@gmail.com",
+                    phone = "+6281234567890"
+            )
+            contactRepository.save(contact)
+        }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .queryParam("name", "Muhammad")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(10, response.data?.size)
+                    assertEquals(10, response.paging?.totalPage)
+                    assertEquals(0, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .queryParam("name", "Naufal")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(10, response.data?.size)
+                    assertEquals(10, response.paging?.totalPage)
+                    assertEquals(0, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .queryParam("email", "gmail.com")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(10, response.data?.size)
+                    assertEquals(10, response.paging?.totalPage)
+                    assertEquals(0, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .queryParam("phone", "12345")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(10, response.data?.size)
+                    assertEquals(10, response.paging?.totalPage)
+                    assertEquals(0, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts")
+                                .queryParam("phone", "12345")
+                                .queryParam("page", "1000")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<ContactResponse>>>(){})
+                    assertNull(response.errors)
+                    assertEquals(0, response.data?.size)
+                    assertEquals(10, response.paging?.totalPage)
+                    assertEquals(1000, response.paging?.currentPage)
+                    assertEquals(10, response.paging?.size)
+                }
+
+    }
 }

@@ -1,18 +1,25 @@
 package mhmmdnaufall.restful.service.impl
 
+import jakarta.persistence.criteria.Predicate
 import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.ContactResponse
 import mhmmdnaufall.restful.model.CreateContactRequest
+import mhmmdnaufall.restful.model.SearchContactRequest
 import mhmmdnaufall.restful.model.UpdateContactRequest
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.service.ContactService
 import mhmmdnaufall.restful.service.ValidationService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
-import java.util.UUID
+import java.util.*
 
 @Service
 class ContactServiceImpl(
@@ -68,6 +75,35 @@ class ContactServiceImpl(
         val contact = contactRepository.findFirstByUserAndId(user, contactId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
 
         contactRepository.delete(contact)
+    }
+
+    @Transactional(readOnly = true)
+    override fun search(user: User, request: SearchContactRequest): Page<ContactResponse> {
+        val specification = Specification<Contact> { root, query, builder ->
+            val predicates = mutableListOf<Predicate>()
+            predicates.add(builder.equal(root.get<User>("user"), user))
+            if (request.name != null) {
+                predicates.add(builder.or(
+                        builder.like(root.get("firstName"), "%${request.name}%"),
+                        builder.like(root.get("lastName"), "%${request.name}%")
+                ))
+            }
+            if (request.email != null) {
+                predicates.add(builder.like(root.get("email"), "%${request.email}%"))
+            }
+            if (request.phone != null) {
+                predicates.add(builder.like(root.get("phone"), "%${request.phone}%"))
+            }
+
+            query.where(*predicates.toTypedArray()).restriction
+        }
+
+        val pageable: Pageable = PageRequest.of(request.page, request.size)
+        val contacts: Page<Contact> = contactRepository.findAll(specification, pageable)
+
+        val contactResponses: List<ContactResponse> = contacts.content.map(::toContactResponse)
+
+        return PageImpl(contactResponses, pageable, contacts.totalElements)
     }
 
     private fun toContactResponse(contact: Contact): ContactResponse {
