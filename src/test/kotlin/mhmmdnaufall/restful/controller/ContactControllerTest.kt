@@ -243,4 +243,55 @@ class ContactControllerTest {
                 }
 
     }
+
+    @Test
+    fun deleteContactNotFound() {
+        mockMvc
+                .perform(
+                        delete("/api/contacts/2173918")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN","test")
+                )
+                .andExpectAll(
+                        status().isNotFound
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun deleteContactSuccess() {
+        val user = userRepository.findById("test").orElseThrow()
+
+        val contact = Contact(
+                id = UUID.randomUUID().toString(),
+                user = user,
+                firstName = "Muhammad",
+                lastName = "Naufal",
+                email = "naufal@gmail.com",
+                phone = "+6212345678901"
+        )
+        contactRepository.save(contact)
+
+        mockMvc
+                .perform(
+                        delete("/api/contacts/${contact.id}")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN","test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals("OK", response.data)
+                }
+    }
 }

@@ -13,4 +13,6 @@ interface ContactService {
 
     fun update(user: User, request: UpdateContactRequest): ContactResponse
 
+    fun delete(user: User, contactId: String)
+
 }

@@ -4,6 +4,7 @@ import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.*
 import mhmmdnaufall.restful.service.ContactService
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -50,6 +51,16 @@ class ContactController(private val contactService: ContactService) {
 
         return WebResponse(data = contactResponse)
 
+    }
+
+    @DeleteMapping(
+            path = ["/api/contacts/{contactId}"],
+            consumes = [MediaType.APPLICATION_JSON_VALUE],
+            produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun delete(user: User, @PathVariable("contactId") contactId: String): WebResponse<String> {
+        contactService.delete(user, contactId)
+        return WebResponse(data = "OK")
     }
 
 }

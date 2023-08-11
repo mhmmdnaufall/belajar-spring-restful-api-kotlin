@@ -63,6 +63,13 @@ class ContactServiceImpl(
         return toContactResponse(contact)
     }
 
+    @Transactional
+    override fun delete(user: User, contactId: String) {
+        val contact = contactRepository.findFirstByUserAndId(user, contactId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+
+        contactRepository.delete(contact)
+    }
+
     private fun toContactResponse(contact: Contact): ContactResponse {
         return ContactResponse(
                 id = contact.id,
