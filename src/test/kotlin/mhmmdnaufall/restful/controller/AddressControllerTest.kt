@@ -260,4 +260,58 @@ class AddressControllerTest {
                 }
 
     }
+
+    @Test
+    fun deleteAddressNotFound() {
+        mockMvc
+                .perform(
+                        delete("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun deleteAddressSuccess() {
+
+        val contact = contactRepository.findById("test").orElseThrow()
+
+        val address = Address(
+                id = "test",
+                contact = contact,
+                street = "Jalan",
+                city = "Jakarta",
+                province = "DKI",
+                country = "Indonesia",
+                postalCode = "123123"
+        )
+        addressRepository.save(address)
+
+        mockMvc
+                .perform(
+                        delete("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals("OK", response.data)
+
+                    assertFalse(addressRepository.existsById("test"))
+                }
+
+    }
 }

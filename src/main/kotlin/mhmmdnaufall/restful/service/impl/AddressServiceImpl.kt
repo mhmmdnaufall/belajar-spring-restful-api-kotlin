@@ -77,6 +77,19 @@ class AddressServiceImpl(
         return toAddressResponse(address)
     }
 
+    @Transactional
+    override fun remove(user: User, contactId: String, addressId: String) {
+
+        val contact = contactRepository.findFirstByUserAndId(user, contactId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+
+        val address = addressRepository.findFirstByContactAndId(contact, addressId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+
+        addressRepository.delete(address)
+
+    }
+
     private fun toAddressResponse(address: Address): AddressResponse {
         return AddressResponse(
                 id = address.id,

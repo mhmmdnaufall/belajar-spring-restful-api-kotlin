@@ -7,6 +7,7 @@ import mhmmdnaufall.restful.model.UpdateAddressRequest
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.service.AddressService
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -64,6 +65,21 @@ class AddressController( private val addressService: AddressService ) {
 
         val response = addressService.update(user, request)
         return WebResponse(data = response)
+
+    }
+
+    @DeleteMapping(
+            path = ["/api/contacts/{contactId}/addresses/{addressId}"],
+            produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun remove(
+            user: User,
+            @PathVariable("contactId") contactId: String,
+            @PathVariable("addressId") addressId: String
+    ): WebResponse<String> {
+
+        addressService.remove(user, contactId, addressId)
+        return WebResponse(data = "OK")
 
     }
 

@@ -13,4 +13,6 @@ interface AddressService {
 
     fun update(user: User, request: UpdateAddressRequest): AddressResponse
 
+    fun remove(user: User, contactId: String, addressId: String)
+
 }
