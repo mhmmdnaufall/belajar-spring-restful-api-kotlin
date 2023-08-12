@@ -8,7 +8,7 @@ import jakarta.validation.constraints.Size
 
 data class UpdateContactRequest(
 
-        @field:JsonIgnore
+        @field:JsonIgnore // biar di-ignore sama si ObjectMapper
         @field:NotBlank
         var id: String? = null,
 

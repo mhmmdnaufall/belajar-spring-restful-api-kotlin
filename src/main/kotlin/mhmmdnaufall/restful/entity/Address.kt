@@ -14,16 +14,16 @@ data class Address(
         @field:Id
         val id: String,
 
-        var street: String,
+        var street: String?,
 
-        var city: String,
+        var city: String?,
 
-        var province: String,
+        var province: String?,
 
         var country: String,
 
         @field:Column(name = "postal_code")
-        var postalCode: String,
+        var postalCode: String?,
 
         @field:ManyToOne
         @JoinColumn(name = "contact_id", referencedColumnName = "id")
