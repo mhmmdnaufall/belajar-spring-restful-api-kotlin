@@ -8,6 +8,7 @@ import mhmmdnaufall.restful.model.ContactResponse
 import mhmmdnaufall.restful.model.CreateContactRequest
 import mhmmdnaufall.restful.model.UpdateContactRequest
 import mhmmdnaufall.restful.model.WebResponse
+import mhmmdnaufall.restful.repository.AddressRepository
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.repository.UserRepository
 import mhmmdnaufall.restful.security.BCrypt
@@ -41,10 +42,14 @@ class ContactControllerTest {
     private lateinit var contactRepository: ContactRepository
 
     @Autowired
+    private lateinit var addressRepository: AddressRepository
+
+    @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setUp() {
+        addressRepository.deleteAll()
         contactRepository.deleteAll()
         userRepository.deleteAll()
 

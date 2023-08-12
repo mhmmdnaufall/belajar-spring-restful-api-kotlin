@@ -6,6 +6,8 @@ import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.LoginUserRequest
 import mhmmdnaufall.restful.model.TokenResponse
 import mhmmdnaufall.restful.model.WebResponse
+import mhmmdnaufall.restful.repository.AddressRepository
+import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.repository.UserRepository
 import mhmmdnaufall.restful.security.BCrypt
 import org.junit.jupiter.api.BeforeEach
@@ -34,10 +36,18 @@ class AuthControllerTest {
     private lateinit var userRepository: UserRepository
 
     @Autowired
+    private lateinit var contactRepository: ContactRepository
+
+    @Autowired
+    private lateinit var addressRepository: AddressRepository
+
+    @Autowired
     private lateinit var objectMapper: ObjectMapper
 
     @BeforeEach
     fun setUp() {
+        addressRepository.deleteAll()
+        contactRepository.deleteAll()
         userRepository.deleteAll()
     }
 
