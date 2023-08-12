@@ -7,6 +7,7 @@ import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.AddressResponse
 import mhmmdnaufall.restful.model.CreateAddressRequest
+import mhmmdnaufall.restful.model.UpdateAddressRequest
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.repository.AddressRepository
 import mhmmdnaufall.restful.repository.ContactRepository
@@ -184,5 +185,79 @@ class AddressControllerTest {
                     assertEquals(address.country, response.data?.country)
                     assertEquals(address.postalCode, response.data?.postalCode)
                 }
+    }
+
+    @Test
+    fun updateAddressBadRequest() {
+        val request = UpdateAddressRequest(
+                country = ""
+        )
+
+        mockMvc
+                .perform(
+                        put("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isBadRequest
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+    }
+
+    @Test
+    fun updateAddressSuccess() {
+
+        val contact = contactRepository.findById("test").orElseThrow()
+
+        val address = Address(
+                id = "test",
+                contact = contact,
+                street = "Lama",
+                city = "Lama",
+                province = "Lava",
+                country = "Lama",
+                postalCode = "77897907"
+        )
+        addressRepository.save(address)
+
+        val request = UpdateAddressRequest(
+                street = "Jalan",
+                city = "Jakarta",
+                province = "DKI",
+                country = "Indonesia",
+                postalCode = "123123"
+        )
+
+        mockMvc
+                .perform(
+                        put("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<AddressResponse>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals(request.street, response.data?.street)
+                    assertEquals(request.city, response.data?.city)
+                    assertEquals(request.province, response.data?.province)
+                    assertEquals(request.country, response.data?.country)
+                    assertEquals(request.postalCode, response.data?.postalCode)
+
+                    assertTrue(addressRepository.existsById(response.data?.id!!))
+                }
+
     }
 }

@@ -4,6 +4,7 @@ import mhmmdnaufall.restful.entity.Address
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.AddressResponse
 import mhmmdnaufall.restful.model.CreateAddressRequest
+import mhmmdnaufall.restful.model.UpdateAddressRequest
 import mhmmdnaufall.restful.repository.AddressRepository
 import mhmmdnaufall.restful.repository.ContactRepository
 import mhmmdnaufall.restful.service.AddressService
@@ -50,6 +51,28 @@ class AddressServiceImpl(
 
         val address = addressRepository.findFirstByContactAndId(contact, addressId)
                 ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+
+        return toAddressResponse(address)
+    }
+
+    override fun update(user: User, request: UpdateAddressRequest): AddressResponse {
+        validationService.validate(request)
+
+        val contact = contactRepository.findFirstByUserAndId(user, request.contactId!!)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+
+        val address = addressRepository.findFirstByContactAndId(contact, request.addressId!!)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+
+
+        address.apply {
+            street = request.street
+            city = request.city
+            province = request.province
+            country = request.country
+            postalCode = request.postalCode
+        }
+        addressRepository.save(address)
 
         return toAddressResponse(address)
     }
