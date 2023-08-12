@@ -4,7 +4,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: ${DATABASE_USERNAME:kotlin}
     password: ${DATABASE_PASSWORD:kotlin}
-    url: jdbc:mysql://localhost:3306/belajar_spring_restful_api_kotlin
+    url: ${DATABASE_URL:jdbc:mysql://localhost:3306/belajar_spring_restful_api_kotlin}
     type: com.zaxxer.hikari.HikariDataSource
 
     hikari:

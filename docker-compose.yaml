@@ -1,8 +1,21 @@
 version: "3.8"
 
 services:
+
   spring-restful-api-kotlin:
     container_name: spring-restful-api-kotlin
+    image: spring-restful-api-kotlin:0.0.1
+    ports:
+      - "8080:8080"
+    environment:
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: root
+      DATABASE_URL: jdbc:mysql://spring-restful-api-kotlin-mysql:3306/belajar_spring_restful_api_kotlin
+    depends_on:
+      - spring-restful-api-kotlin-mysql
+
+  spring-restful-api-kotlin-mysql:
+    container_name: spring-restful-api-kotlin-mysql
     image: mysql:latest
     ports:
       - "3306:3306"
