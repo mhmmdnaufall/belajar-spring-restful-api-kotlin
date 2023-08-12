@@ -6,6 +6,7 @@ import mhmmdnaufall.restful.model.CreateAddressRequest
 import mhmmdnaufall.restful.model.WebResponse
 import mhmmdnaufall.restful.service.AddressService
 import org.springframework.http.MediaType
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -29,6 +30,19 @@ class AddressController( private val addressService: AddressService ) {
         val response = addressService.create(user, request)
         return WebResponse(data = response)
 
+    }
+
+    @GetMapping(
+            path = ["/api/contacts/{contactId}/addresses/{addressId}"],
+            produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun get(
+            user: User,
+            @PathVariable("contactId") contactId: String,
+            @PathVariable("addressId") addressId: String
+    ): WebResponse<AddressResponse> {
+        val response = addressService.get(user, contactId, addressId)
+        return WebResponse(data = response)
     }
 
 }

@@ -2,6 +2,7 @@ package mhmmdnaufall.restful.controller
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import mhmmdnaufall.restful.entity.Address
 import mhmmdnaufall.restful.entity.Contact
 import mhmmdnaufall.restful.entity.User
 import mhmmdnaufall.restful.model.AddressResponse
@@ -129,4 +130,59 @@ class AddressControllerTest {
                 }
     }
 
+    @Test
+    fun getAddressNotFound() {
+
+        mockMvc
+                .perform(
+                        get("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+                    assertNotNull(response.errors)
+                }
+
+    }
+
+    @Test
+    fun getAddressSuccess() {
+        val contact = contactRepository.findById("test").orElseThrow()
+
+        val address = Address(
+                id = "test",
+                contact = contact,
+                street = "Jalan",
+                city = "Jakarta",
+                province = "DKI",
+                country = "Indonesia",
+                postalCode = "123123"
+        )
+        addressRepository.save(address)
+
+        mockMvc
+                .perform(
+                        get("/api/contacts/test/addresses/test")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<AddressResponse>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals(address.id, response.data?.id)
+                    assertEquals(address.street, response.data?.street)
+                    assertEquals(address.city, response.data?.city)
+                    assertEquals(address.province, response.data?.province)
+                    assertEquals(address.country, response.data?.country)
+                    assertEquals(address.postalCode, response.data?.postalCode)
+                }
+    }
 }

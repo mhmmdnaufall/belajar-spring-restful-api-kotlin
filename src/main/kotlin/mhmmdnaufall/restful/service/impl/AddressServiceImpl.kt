@@ -43,6 +43,17 @@ class AddressServiceImpl(
         return toAddressResponse(address)
     }
 
+    @Transactional(readOnly = true)
+    override fun get(user: User, contactId: String, addressId: String): AddressResponse {
+        val contact = contactRepository.findFirstByUserAndId(user, contactId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+
+        val address = addressRepository.findFirstByContactAndId(contact, addressId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+
+        return toAddressResponse(address)
+    }
+
     private fun toAddressResponse(address: Address): AddressResponse {
         return AddressResponse(
                 id = address.id,

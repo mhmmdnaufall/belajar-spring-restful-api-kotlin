@@ -8,4 +8,6 @@ interface AddressService {
 
     fun create(user: User, request: CreateAddressRequest): AddressResponse
 
+    fun get(user: User, contactId: String, addressId: String): AddressResponse
+
 }
