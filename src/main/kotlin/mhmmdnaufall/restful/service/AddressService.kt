@@ -15,4 +15,6 @@ interface AddressService {
 
     fun remove(user: User, contactId: String, addressId: String)
 
+    fun list(user: User, contactId: String): List<AddressResponse>
+
 }

@@ -10,4 +10,6 @@ interface AddressRepository : JpaRepository<Address, String> {
 
     fun findFirstByContactAndId(contact: Contact, id: String): Address?
 
+    fun findAllByContact(contact: Contact): List<Address>
+
 }

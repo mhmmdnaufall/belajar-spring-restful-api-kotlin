@@ -83,4 +83,18 @@ class AddressController( private val addressService: AddressService ) {
 
     }
 
+    @GetMapping(
+            path = ["/api/contacts/{contactId}/addresses"],
+            produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun list(
+            user: User,
+            @PathVariable("contactId") contactId: String
+    ): WebResponse<List<AddressResponse>> {
+
+        val addressResponses = addressService.list(user, contactId)
+        return WebResponse(data = addressResponses)
+
+    }
+
 }

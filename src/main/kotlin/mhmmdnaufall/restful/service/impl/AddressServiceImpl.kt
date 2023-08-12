@@ -90,6 +90,15 @@ class AddressServiceImpl(
 
     }
 
+    @Transactional(readOnly = true)
+    override fun list(user: User, contactId: String): List<AddressResponse> {
+        val contact = contactRepository.findFirstByUserAndId(user, contactId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+
+        val addresses: List<Address> = addressRepository.findAllByContact(contact)
+        return addresses.map(::toAddressResponse)
+    }
+
     private fun toAddressResponse(address: Address): AddressResponse {
         return AddressResponse(
                 id = address.id,

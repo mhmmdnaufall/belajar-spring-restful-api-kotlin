@@ -314,4 +314,62 @@ class AddressControllerTest {
                 }
 
     }
+
+    @Test
+    fun listAddressNotFound() {
+
+        mockMvc
+                .perform(
+                        get("/api/contacts/salah/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isNotFound
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<String>>(){})
+
+                    assertNotNull(response.errors)
+                }
+
+    }
+
+    @Test
+    fun listAddressSuccess() {
+
+        val contact = contactRepository.findById("test").orElseThrow()
+
+        for (i in 1..5) {
+
+            val address = Address(
+                    id = "test $i",
+                    contact = contact,
+                    street = "Jalan",
+                    city = "Jakarta",
+                    province = "DKI",
+                    country = "Indonesia",
+                    postalCode = "123123",
+            )
+            addressRepository.save(address)
+
+        }
+
+        mockMvc
+                .perform(
+                        get("/api/contacts/test/addresses")
+                                .accept(MediaType.APPLICATION_JSON)
+                                .header("X-API-TOKEN", "test")
+                )
+                .andExpectAll(
+                        status().isOk
+                )
+                .andDo { result ->
+                    val response = objectMapper.readValue(result.response.contentAsString, object : TypeReference<WebResponse<List<AddressResponse>>>(){})
+
+                    assertNull(response.errors)
+                    assertEquals(5, response.data?.size)
+                }
+
+    }
 }
