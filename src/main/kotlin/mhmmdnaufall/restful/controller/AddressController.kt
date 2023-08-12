@@ -57,7 +57,7 @@ class AddressController( private val addressService: AddressService ) {
             user: User,
             @RequestBody request: UpdateAddressRequest,
             @PathVariable("contactId") contactId: String,
-            @PathVariable("contactId") addressId: String
+            @PathVariable("addressId") addressId: String
     ): WebResponse<AddressResponse> {
 
         request.contactId = contactId

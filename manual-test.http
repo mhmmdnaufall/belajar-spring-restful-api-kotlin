@@ -1,0 +1,114 @@
+### Register
+POST http://localhost:8080/api/users
+Accept: application/json
+Content-Type: application/json
+
+{
+    "username": "mhmmdnaufal",
+    "password": "rahasia",
+    "name": "naufal"
+}
+
+### Login
+POST http://localhost:8080/api/auth/login
+Accept: application/json
+Content-Type: application/json
+
+{
+    "username": "mhmmdnaufal",
+    "password": "rahasia"
+}
+
+### Get User
+GET http://localhost:8080/api/users/current
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+### Update User
+PATCH http://localhost:8080/api/users/current
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+{
+    "name": "Muhammad Naufal"
+}
+
+### Create Contact
+POST http://localhost:8080/api/contacts
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+{
+    "firstName": "Ariel",
+    "lastName": "Peterpan",
+    "email": "ariel@gmail.com",
+    "phone": "+6281234567890"
+}
+
+### Search Contact
+GET http://localhost:8080/api/contacts
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+### Get Contact
+GET http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+### Update Contact
+PUT http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+{
+    "firstName": "Ariel",
+    "lastName": "Noah",
+    "email": "ariel@gmail.com",
+    "phone": "+6281234567890"
+}
+
+### Remove Contact
+DELETE http://localhost:8080/api/contacts/388be2ff-a440-4de7-804a-0b8c5c9207f5
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+### Add Address
+POST http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b/addresses
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+{
+    "street": "Jalan Ibu Kita Kartini Putri Sejati",
+    "city": "Jakarta Timur Daya",
+    "province": "DKI Jakarta",
+    "country": "Indonesia",
+    "postalCode": "112233"
+}
+
+### List Address
+GET http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b/addresses
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+### Update Address
+PUT http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b/addresses/5b53ce7c-c440-4abc-8b11-3e87a8cd67c1
+Accept: application/json
+Content-Type: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73
+
+{
+    "street": "Jalan Ibu Kita Kartini Putri Sejati Putri Indonesia Harum Namanya",
+    "city": "Jakarta Timur Daya",
+    "province": "DKI Jakarta",
+    "country": "Indonesia",
+    "postalCode": "112233"
+}
+
+### Delete Address
+DELETE http://localhost:8080/api/contacts/52ce7d9b-a13e-4102-8978-daf72cd2811b/addresses/5b53ce7c-c440-4abc-8b11-3e87a8cd67c1
+Accept: application/json
+X-API-TOKEN: aae336e6-1c89-4af1-8f08-ae323978aa73

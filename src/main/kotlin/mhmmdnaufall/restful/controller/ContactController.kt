@@ -57,7 +57,6 @@ class ContactController(private val contactService: ContactService) {
 
     @DeleteMapping(
             path = ["/api/contacts/{contactId}"],
-            consumes = [MediaType.APPLICATION_JSON_VALUE],
             produces = [MediaType.APPLICATION_JSON_VALUE]
     )
     fun delete(user: User, @PathVariable("contactId") contactId: String): WebResponse<String> {
