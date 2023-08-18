@@ -24,7 +24,10 @@ data class UpdateContactRequest(
         val email: String? = null,
 
         @field:Size(max = 100)
-        @field:Pattern(regexp = "^\\+?\\d{1,3}[-.\\s]?\\(?\\d{1,3}\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}$")
+        @field:Pattern(
+                regexp = "^\\+?\\d{1,3}[-.\\s]?\\(?\\d{1,3}\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}$",
+                message = "phone: must be a well-formed phone number"
+        )
         val phone: String? = null
 
 )
