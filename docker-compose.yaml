@@ -4,6 +4,9 @@ services:
 
   spring-restful-api-kotlin:
     container_name: spring-restful-api-kotlin
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: spring-restful-api-kotlin:0.0.1
     ports:
       - "8080:8080"
@@ -11,6 +14,7 @@ services:
       DATABASE_USERNAME: root
       DATABASE_PASSWORD: root
       DATABASE_URL: jdbc:mysql://spring-restful-api-kotlin-mysql:3306/belajar_spring_restful_api_kotlin
+      APP_PORT: 8080
     depends_on:
       - spring-restful-api-kotlin-mysql
 
