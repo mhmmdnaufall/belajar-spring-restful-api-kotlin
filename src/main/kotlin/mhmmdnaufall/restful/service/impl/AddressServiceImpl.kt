@@ -27,7 +27,7 @@ class AddressServiceImpl(
         validationService.validate(request)
 
         val contact = contactRepository.findFirstByUserAndId(user, request.contactId!!)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_IS_NOT_FOUND_MESSAGE)
 
         val address = Address(
                 id = UUID.randomUUID().toString(),
@@ -47,10 +47,10 @@ class AddressServiceImpl(
     @Transactional(readOnly = true)
     override fun get(user: User, contactId: String, addressId: String): AddressResponse {
         val contact = contactRepository.findFirstByUserAndId(user, contactId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_IS_NOT_FOUND_MESSAGE)
 
         val address = addressRepository.findFirstByContactAndId(contact, addressId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, ADDRESS_IS_NOT_FOUND_MESSAGE)
 
         return toAddressResponse(address)
     }
@@ -59,10 +59,10 @@ class AddressServiceImpl(
         validationService.validate(request)
 
         val contact = contactRepository.findFirstByUserAndId(user, request.contactId!!)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_IS_NOT_FOUND_MESSAGE)
 
         val address = addressRepository.findFirstByContactAndId(contact, request.addressId!!)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, ADDRESS_IS_NOT_FOUND_MESSAGE)
 
 
         address.apply {
@@ -81,10 +81,10 @@ class AddressServiceImpl(
     override fun remove(user: User, contactId: String, addressId: String) {
 
         val contact = contactRepository.findFirstByUserAndId(user, contactId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_IS_NOT_FOUND_MESSAGE)
 
         val address = addressRepository.findFirstByContactAndId(contact, addressId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Address is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, ADDRESS_IS_NOT_FOUND_MESSAGE)
 
         addressRepository.delete(address)
 
@@ -93,7 +93,7 @@ class AddressServiceImpl(
     @Transactional(readOnly = true)
     override fun list(user: User, contactId: String): List<AddressResponse> {
         val contact = contactRepository.findFirstByUserAndId(user, contactId)
-                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact is not found")
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_IS_NOT_FOUND_MESSAGE)
 
         val addresses: List<Address> = addressRepository.findAllByContact(contact)
         return addresses.map(::toAddressResponse)
@@ -108,6 +108,11 @@ class AddressServiceImpl(
                 country = address.country,
                 postalCode = address.postalCode
         )
+    }
+
+    companion object {
+        const val CONTACT_IS_NOT_FOUND_MESSAGE = "Contact is not found"
+        const val ADDRESS_IS_NOT_FOUND_MESSAGE = "Address is not found"
     }
 
 }

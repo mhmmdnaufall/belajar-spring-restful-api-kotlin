@@ -47,7 +47,8 @@ class ContactServiceImpl(
 
     @Transactional(readOnly = true)
     override fun get(user: User, id: String): ContactResponse {
-        val contact = contactRepository.findFirstByUserAndId(user, id) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        val contact = contactRepository.findFirstByUserAndId(user, id)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_NOT_FOUND_MESSAGE)
 
         return toContactResponse(contact)
     }
@@ -56,7 +57,8 @@ class ContactServiceImpl(
     override fun update(user: User, request: UpdateContactRequest): ContactResponse {
         validationService.validate(request)
 
-        val contact = contactRepository.findFirstByUserAndId(user, request.id!!) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        val contact = contactRepository.findFirstByUserAndId(user, request.id!!)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_NOT_FOUND_MESSAGE)
 
         contact.apply {
             firstName = request.firstName
@@ -72,7 +74,8 @@ class ContactServiceImpl(
 
     @Transactional
     override fun delete(user: User, contactId: String) {
-        val contact = contactRepository.findFirstByUserAndId(user, contactId) ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Contact not found")
+        val contact = contactRepository.findFirstByUserAndId(user, contactId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, CONTACT_NOT_FOUND_MESSAGE)
 
         contactRepository.delete(contact)
     }
@@ -84,15 +87,15 @@ class ContactServiceImpl(
             predicates.add(builder.equal(root.get<User>("user"), user))
             if (request.name != null) {
                 predicates.add(builder.or(
-                        builder.like(root.get("firstName"), "%${request.name}%"),
-                        builder.like(root.get("lastName"), "%${request.name}%")
+                        builder.like(root["firstName"], "%${request.name}%"),
+                        builder.like(root["lastName"], "%${request.name}%")
                 ))
             }
             if (request.email != null) {
-                predicates.add(builder.like(root.get("email"), "%${request.email}%"))
+                predicates.add(builder.like(root["email"], "%${request.email}%"))
             }
             if (request.phone != null) {
-                predicates.add(builder.like(root.get("phone"), "%${request.phone}%"))
+                predicates.add(builder.like(root["phone"], "%${request.phone}%"))
             }
 
             query.where(*predicates.toTypedArray()).restriction
@@ -114,6 +117,10 @@ class ContactServiceImpl(
                 email = contact.email,
                 phone = contact.phone
         )
+    }
+
+    companion object {
+        const val CONTACT_NOT_FOUND_MESSAGE = "Contact not found"
     }
 
 }
