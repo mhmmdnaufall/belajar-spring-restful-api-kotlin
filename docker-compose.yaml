@@ -11,8 +11,8 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_USERNAME: root
-      DATABASE_PASSWORD: root
+      DATABASE_USERNAME: kotlin
+      DATABASE_PASSWORD: kotlin
       DATABASE_URL: jdbc:mysql://spring-restful-api-kotlin-mysql:3306/belajar_spring_restful_api_kotlin
       APP_PORT: 8080
     depends_on:
@@ -28,3 +28,5 @@ services:
       MYSQL_DATABASE: belajar_spring_restful_api_kotlin
       MYSQL_USER: kotlin
       MYSQL_PASSWORD: kotlin
+    volumes:
+      - "./backup:/data/backup"
